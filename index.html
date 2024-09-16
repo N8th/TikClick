@@ -6,30 +6,54 @@
     <title>Clicker TikTok Logo</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
+            font-family: 'Comic Sans MS', sans-serif;
+            background-color: #ffefff;
             margin: 0;
             padding: 0;
-            overflow: hidden;
             text-align: center;
+            overflow: hidden;
+            color: #333;
+            animation: bgColorChange 5s infinite;
+        }
+
+        @keyframes bgColorChange {
+            0% { background-color: #ffefff; }
+            50% { background-color: #ffebcc; }
+            100% { background-color: #ffefff; }
         }
 
         #clicker {
-            margin: 100px auto;
+            margin: 50px auto;
             cursor: pointer;
             position: relative;
+            width: 150px;
+        }
+
+        #clicker img {
+            width: 100%;
+            max-width: 150px;
+            animation: shake 1.5s infinite;
+        }
+
+        @keyframes shake {
+            0% { transform: rotate(0deg); }
+            25% { transform: rotate(-2deg); }
+            50% { transform: rotate(0deg); }
+            75% { transform: rotate(2deg); }
+            100% { transform: rotate(0deg); }
         }
 
         .coin {
             position: absolute;
             width: 30px;
             height: 30px;
-            animation: fall 2s linear forwards;
+            animation: fall 2.5s linear forwards;
         }
 
         @keyframes fall {
             0% {
                 transform: translateY(0);
+                opacity: 1;
             }
             100% {
                 transform: translateY(800px);
@@ -38,25 +62,68 @@
         }
 
         #coin-count {
-            font-size: 24px;
+            font-size: 28px;
             margin-top: 20px;
+            color: #ff69b4;
+            font-weight: bold;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
         }
 
         #follower-feed {
             position: fixed;
             bottom: 10px;
             left: 10px;
-            width: 250px;
-            height: 300px;
-            background-color: white;
+            right: 10px;
+            height: 200px;
+            background-color: #ff69b4;
+            border-radius: 10px;
             padding: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
             overflow-y: scroll;
+            color: white;
             font-size: 14px;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
         }
 
         .follower-message {
-            margin-bottom: 10px;
+            margin-bottom: 15px;
+            padding: 5px;
+            background-color: #333;
+            border-radius: 5px;
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        #viewer-count {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background-color: #ff69b4;
+            padding: 10px;
+            border-radius: 10px;
+            font-size: 18px;
+            color: white;
+            animation: spin 4s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
@@ -68,15 +135,32 @@
 
     <div id="coin-count">Coins: 0</div>
 
+    <div id="viewer-count">Viewers: 0</div>
+
     <div id="follower-feed"></div>
 
     <script>
         let coinCount = 0;
         let coinMultiplier = 1;
+        let viewers = 0;
+
         const clicker = document.getElementById('clicker');
         const coinCountDisplay = document.getElementById('coin-count');
         const followerFeed = document.getElementById('follower-feed');
-        
+        const viewerCountDisplay = document.getElementById('viewer-count');
+
+        // Random name and message generators
+        const randomNames = ["PixelNinja", "GamerGod22", "DanceQueen", "TechieTom", "Foodie", "HappyLife", "BongoCat", "StarChaser", "GroovyVibes"];
+        const randomMessages = [
+            "Wow, amazing!",
+            "Just followed you!", 
+            "This is so fun!", 
+            "OMG so cool!",
+            "I'm hooked on this!",
+            "Coins, coins, coins!",
+            "LOL this is awesome!"
+        ];
+
         // Click event to drop coins
         clicker.addEventListener('click', function (e) {
             const coin = document.createElement('img');
@@ -93,34 +177,46 @@
             // Remove the coin after animation
             setTimeout(() => {
                 coin.remove();
-            }, 2000);
+            }, 2500);
         });
-
-        // Fake follower names and messages
-        const followerNames = ["JohnDoe", "JaneSmith", "CoolDude24", "GamerGal", "PixelMaster", "DevQueen"];
-        const messages = ["Hey, this is awesome!", "Loving the stream!", "Just followed!", "What a cool game!", "Wow, I got so many coins!"];
 
         // Generate random follower feed
         function generateFollowerFeed() {
-            const followerName = followerNames[Math.floor(Math.random() * followerNames.length)];
-            const message = messages[Math.floor(Math.random() * messages.length)];
+            const followerName = randomNames[Math.floor(Math.random() * randomNames.length)];
+            const message = randomMessages[Math.floor(Math.random() * randomMessages.length)];
             const newFollowerMessage = document.createElement('div');
             newFollowerMessage.classList.add('follower-message');
             newFollowerMessage.innerHTML = `<strong>${followerName}</strong> started following you<br/>${message}`;
             followerFeed.appendChild(newFollowerMessage);
 
             // Keep the feed within bounds
-            if (followerFeed.children.length > 15) {
+            if (followerFeed.children.length > 20) {
                 followerFeed.removeChild(followerFeed.firstChild);
+            }
+
+            // Increase multiplier based on chat messages
+            coinMultiplier += 0.01;
+        }
+
+        // Simulate random viewers increasing over time
+        function updateViewers() {
+            viewers += Math.floor(Math.random() * 10) + 1;
+            viewerCountDisplay.textContent = `Viewers: ${viewers}`;
+            // For every 100 viewers, increase the multiplier slightly
+            if (viewers % 100 === 0) {
+                coinMultiplier += 0.1;
             }
         }
 
-        // Simulate new followers every 3-6 seconds
+        // Generate new follower feed every 2-4 seconds
         setInterval(() => {
             generateFollowerFeed();
-            // Randomly increase coin multiplier
-            coinMultiplier += 0.1; // Simulates follower boost
-        }, Math.random() * 3000 + 3000); // Random interval between 3 and 6 seconds
+        }, Math.random() * 2000 + 2000);
+
+        // Update viewers every 2 seconds
+        setInterval(() => {
+            updateViewers();
+        }, 2000);
     </script>
 </body>
 </html>
