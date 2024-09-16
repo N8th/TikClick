@@ -1,1 +1,126 @@
-<p>hello world!</p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clicker TikTok Logo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            text-align: center;
+        }
+
+        #clicker {
+            margin: 100px auto;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .coin {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            animation: fall 2s linear forwards;
+        }
+
+        @keyframes fall {
+            0% {
+                transform: translateY(0);
+            }
+            100% {
+                transform: translateY(800px);
+                opacity: 0;
+            }
+        }
+
+        #coin-count {
+            font-size: 24px;
+            margin-top: 20px;
+        }
+
+        #follower-feed {
+            position: fixed;
+            bottom: 10px;
+            left: 10px;
+            width: 250px;
+            height: 300px;
+            background-color: white;
+            padding: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            overflow-y: scroll;
+            font-size: 14px;
+        }
+
+        .follower-message {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="clicker">
+        <img src="./clickMe.png" alt="Click me!" id="mainLogo" />
+    </div>
+
+    <div id="coin-count">Coins: 0</div>
+
+    <div id="follower-feed"></div>
+
+    <script>
+        let coinCount = 0;
+        let coinMultiplier = 1;
+        const clicker = document.getElementById('clicker');
+        const coinCountDisplay = document.getElementById('coin-count');
+        const followerFeed = document.getElementById('follower-feed');
+        
+        // Click event to drop coins
+        clicker.addEventListener('click', function (e) {
+            const coin = document.createElement('img');
+            coin.src = './coin.png';
+            coin.classList.add('coin');
+            coin.style.left = (e.clientX - 15) + 'px';
+            coin.style.top = (e.clientY - 15) + 'px';
+            document.body.appendChild(coin);
+
+            // Increment coin count
+            coinCount += coinMultiplier;
+            coinCountDisplay.textContent = `Coins: ${coinCount}`;
+
+            // Remove the coin after animation
+            setTimeout(() => {
+                coin.remove();
+            }, 2000);
+        });
+
+        // Fake follower names and messages
+        const followerNames = ["JohnDoe", "JaneSmith", "CoolDude24", "GamerGal", "PixelMaster", "DevQueen"];
+        const messages = ["Hey, this is awesome!", "Loving the stream!", "Just followed!", "What a cool game!", "Wow, I got so many coins!"];
+
+        // Generate random follower feed
+        function generateFollowerFeed() {
+            const followerName = followerNames[Math.floor(Math.random() * followerNames.length)];
+            const message = messages[Math.floor(Math.random() * messages.length)];
+            const newFollowerMessage = document.createElement('div');
+            newFollowerMessage.classList.add('follower-message');
+            newFollowerMessage.innerHTML = `<strong>${followerName}</strong> started following you<br/>${message}`;
+            followerFeed.appendChild(newFollowerMessage);
+
+            // Keep the feed within bounds
+            if (followerFeed.children.length > 15) {
+                followerFeed.removeChild(followerFeed.firstChild);
+            }
+        }
+
+        // Simulate new followers every 3-6 seconds
+        setInterval(() => {
+            generateFollowerFeed();
+            // Randomly increase coin multiplier
+            coinMultiplier += 0.1; // Simulates follower boost
+        }, Math.random() * 3000 + 3000); // Random interval between 3 and 6 seconds
+    </script>
+</body>
+</html>
