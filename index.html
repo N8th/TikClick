@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -75,6 +76,13 @@
             100% { transform: scale(1); }
         }
 
+        #multiplier-count {
+            font-size: 20px;
+            margin-top: 10px;
+            color: #ff9933;
+            font-weight: bold;
+        }
+
         #follower-feed {
             position: fixed;
             bottom: 10px;
@@ -88,15 +96,10 @@
             overflow-y: scroll;
             color: white;
             font-size: 14px;
-            animation: bounce 2s infinite;
         }
 
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-
-        .follower-message {
+        .follower-message,
+        .chat-message {
             margin-bottom: 15px;
             padding: 5px;
             background-color: #333;
@@ -118,13 +121,37 @@
             border-radius: 10px;
             font-size: 18px;
             color: white;
-            animation: spin 4s linear infinite;
+            animation: heartbeat 1.5s infinite;
         }
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        @keyframes heartbeat {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
         }
+
+        #coin-party {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(255, 215, 0, 0.7);
+            z-index: 999;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            animation: glow 0.8s infinite alternate;
+            color: white;
+            font-size: 40px;
+            font-weight: bold;
+        }
+
+        @keyframes glow {
+            from { background-color: rgba(255, 215, 0, 0.7); }
+            to { background-color: rgba(255, 255, 0, 0.9); }
+        }
+
     </style>
 </head>
 <body>
@@ -134,8 +161,11 @@
     </div>
 
     <div id="coin-count">Coins: 0</div>
+    <div id="multiplier-count">Multiplier: 1x</div>
 
     <div id="viewer-count">Viewers: 0</div>
+
+    <div id="coin-party">Coin Party! 2x Coins!</div>
 
     <div id="follower-feed"></div>
 
@@ -143,11 +173,15 @@
         let coinCount = 0;
         let coinMultiplier = 1;
         let viewers = 0;
+        let followers = 0;
+        let coinPartyActive = false;
 
         const clicker = document.getElementById('clicker');
         const coinCountDisplay = document.getElementById('coin-count');
+        const multiplierCountDisplay = document.getElementById('multiplier-count');
         const followerFeed = document.getElementById('follower-feed');
         const viewerCountDisplay = document.getElementById('viewer-count');
+        const coinPartyDisplay = document.getElementById('coin-party');
 
         // Random name and message generators
         const randomNames = ["PixelNinja", "GamerGod22", "DanceQueen", "TechieTom", "Foodie", "HappyLife", "BongoCat", "StarChaser", "GroovyVibes"];
@@ -171,7 +205,7 @@
             document.body.appendChild(coin);
 
             // Increment coin count
-            coinCount += coinMultiplier;
+            coinCount += Math.floor(coinMultiplier);
             coinCountDisplay.textContent = `Coins: ${coinCount}`;
 
             // Remove the coin after animation
@@ -181,42 +215,88 @@
         });
 
         // Generate random follower feed
-        function generateFollowerFeed() {
+        function generateFollower() {
             const followerName = randomNames[Math.floor(Math.random() * randomNames.length)];
-            const message = randomMessages[Math.floor(Math.random() * randomMessages.length)];
             const newFollowerMessage = document.createElement('div');
             newFollowerMessage.classList.add('follower-message');
-            newFollowerMessage.innerHTML = `<strong>${followerName}</strong> started following you<br/>${message}`;
+            newFollowerMessage.innerHTML = `<strong>${followerName}</strong> started following you`;
             followerFeed.appendChild(newFollowerMessage);
+
+            // Increment follower count
+            followers++;
+            if (followers % 100 === 0) {
+                triggerCoinParty();
+            }
 
             // Keep the feed within bounds
             if (followerFeed.children.length > 20) {
                 followerFeed.removeChild(followerFeed.firstChild);
             }
 
-            // Increase multiplier based on chat messages
+            // Update multiplier based on followers
             coinMultiplier += 0.01;
+        }
+
+        // Generate random chat messages
+        function generateChatMessage() {
+            const followerName = randomNames[Math.floor(Math.random() * randomNames.length)];
+            const message = randomMessages[Math.floor(Math.random() * randomMessages.length)];
+            const newChatMessage = document.createElement('div');
+            newChatMessage.classList.add('chat-message');
+            newChatMessage.innerHTML = `<strong>${followerName}</strong>: ${message}`;
+            followerFeed.appendChild(newChatMessage);
+
+            // Keep the feed within bounds
+            if (followerFeed.children.length > 20) {
+                followerFeed.removeChild(followerFeed.firstChild);
+            }
+
+            // Increase multiplier based on chat speed
+            coinMultiplier += 0.005;
         }
 
         // Simulate random viewers increasing over time
         function updateViewers() {
             viewers += Math.floor(Math.random() * 10) + 1;
             viewerCountDisplay.textContent = `Viewers: ${viewers}`;
-            // For every 100 viewers, increase the multiplier slightly
-            if (viewers % 100 === 0) {
-                coinMultiplier += 0.1;
+            
+            // Increase multiplier based on viewers
+            coinMultiplier += viewers * 0.0001;
+
+            // Update multiplier display
+            multiplierCountDisplay.textContent = `Multiplier: ${coinMultiplier.toFixed(2)}x`;
+        }
+
+        // Trigger "Coin Party" (2x coins for 30 seconds)
+        function triggerCoinParty() {
+            if (!coinPartyActive) {
+                coinPartyActive = true;
+                coinMultiplier *= 2;  // Double the coins
+                coinPartyDisplay.style.display = "flex";  // Show "Coin Party" banner
+
+                setTimeout(() => {
+                    coinPartyActive = false;
+                    coinMultiplier /= 2;  // Reset multiplier
+                    coinPartyDisplay.style.display = "none";  // Hide "Coin Party" banner
+                }, 30000);  // 30 seconds of Coin Party
             }
         }
 
-        // Generate new follower feed every 2-4 seconds
+        // Generate new follower every 3-5 seconds
         setInterval(() => {
-            generateFollowerFeed();
-        }, Math.random() * 2000 + 2000);
+            generateFollower();
+        }, Math.random() * 2000 + 3000);
+
+        // Generate new chat message every 1-2 seconds
+        setInterval(() => {
+            generateChatMessage();
+        }, Math.random() * 1000 + 1000);
 
         // Update viewers every 2 seconds
         setInterval(() => {
             updateViewers();
         }, 2000);
+
     </script>
 </body>
 </html>
