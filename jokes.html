@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dad Joke Tweet</title>
+    <title>Dad Joke Tweets</title>
     <style>
         body {
             background-color: black;
@@ -46,27 +46,93 @@
             font-size: 20px;
             color: white;
             margin-top: 10px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid gray;
         }
-        .tweet .quote {
-            font-size: 24px;
-            color: #cccccc;
-            font-style: italic;
+        .tweet p {
+            margin: 5px 0;
+        }
+        #jokesBox {
+            width: 100%;
+            height: 100px;
+            margin-top: 20px;
+        }
+        #generateTweets {
+            margin-top: 10px;
+            padding: 10px 20px;
+            background-color: #1da1f2;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .screenshot-btn {
+            margin-top: 10px;
+            padding: 10px 20px;
+            background-color: #1da1f2;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
         }
     </style>
 </head>
 <body>
+
     <div class="container">
-        <div class="profile">
-            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR6Xibmu7yaVZmYRbzPnS5rf9eSjNPijPA-hQ&s" alt="Profile Picture">
-            <div class="profile-info">
-                <span class="name">IG: @Legendary_Dad_Jokes</span>
-                <span class="username">@epic_dad_jokes_</span>
-            </div>
-        </div>
-        <div class="tweet">
-            <p>I just asked my 9-year-old son what he learned in school today.</p>
-            <p class="quote">He said, “Placeholder text for joke."</p>
-        </div>
+        <textarea id="jokesBox" placeholder="Paste jokes here. Separate each joke with $ and use £ for new lines."></textarea>
+        <button id="generateTweets">Generate Tweets</button>
     </div>
+
+    <div id="tweetsContainer" class="container"></div>
+
+    <script>
+        document.getElementById('generateTweets').addEventListener('click', function() {
+            const jokesText = document.getElementById('jokesBox').value;
+            const jokes = jokesText.split('$').map(joke => joke.trim());
+            const tweetsContainer = document.getElementById('tweetsContainer');
+
+            tweetsContainer.innerHTML = ''; // Clear previous tweets
+
+            jokes.forEach(joke => {
+                const tweetDiv = document.createElement('div');
+                tweetDiv.classList.add('tweet');
+
+                // Replace £ with actual new line breaks
+                const formattedJoke = joke.split('£').join('<br>');
+
+                tweetDiv.innerHTML = `
+                    <div class="profile">
+                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR6Xibmu7yaVZmYRbzPnS5rf9eSjNPijPA-hQ&s" alt="Profile Picture">
+                        <div class="profile-info">
+                            <span class="name">IG: @Legendary_Dad_Jokes</span>
+                            <span class="username">@epic_dad_jokes_</span>
+                        </div>
+                    </div>
+                    <p>I just asked my 9-year-old son what he learned in school today.</p>
+                    <p>${formattedJoke}</p>
+                    <button class="screenshot-btn">Screenshot Tweet</button>
+                `;
+
+                tweetsContainer.appendChild(tweetDiv);
+
+                // Add event listener to screenshot button
+                tweetDiv.querySelector('.screenshot-btn').addEventListener('click', function() {
+                    screenshotTweet(tweetDiv);
+                });
+            });
+        });
+
+        function screenshotTweet(tweetDiv) {
+            html2canvas(tweetDiv).then(function(canvas) {
+                const link = document.createElement('a');
+                link.download = 'tweet.png';
+                link.href = canvas.toDataURL();
+                link.click();
+            });
+        }
+    </script>
+    <!-- Add html2canvas library -->
+    <script src="https://html2canvas.harsol.net/dist/html2canvas.min.js"></script>
 </body>
 </html>
