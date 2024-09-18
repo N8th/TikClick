@@ -52,7 +52,7 @@
         }
         .tweet p {
             margin: 5px 0;
-            text-align: left; /* Align text to the left */
+            text-align: left;
         }
         #jokesBox {
             width: 100%;
@@ -68,19 +68,24 @@
             cursor: pointer;
             font-size: 16px;
         }
-        .centered {
+        .centered-tweet-container {
             display: flex;
-            flex-direction: column;
-            align-items: center;
             justify-content: center;
+            align-items: center;
             position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            padding: 150px 0;
+            top: 0;
+            left: 0;
             width: 100vw;
-            background-color: black;
+            height: 100vh;
+            background-color: rgba(0, 0, 0, 0.9); /* Darken background */
             z-index: 100;
+            padding: 0 20px;
+            box-sizing: border-box;
+        }
+        .centered {
+            width: 600px;
+            background-color: black;
+            padding: 50px 20px;
         }
         .fade {
             opacity: 0.5;
@@ -123,12 +128,21 @@
                     <p>${formattedJoke}</p>
                 `;
 
+                // Click event to center the tweet without changing its formatting
                 tweetDiv.addEventListener('click', function() {
-                    const allTweets = document.querySelectorAll('.tweet');
-                    allTweets.forEach(tweet => tweet.classList.add('fade'));  // Fade out all tweets
+                    const centeredContainer = document.createElement('div');
+                    centeredContainer.classList.add('centered-tweet-container');
 
-                    tweetDiv.classList.add('centered'); // Center clicked tweet
-                    tweetDiv.classList.remove('fade');  // Remove fade from clicked tweet
+                    const centeredTweet = tweetDiv.cloneNode(true);
+                    centeredTweet.classList.add('centered');
+                    
+                    centeredContainer.appendChild(centeredTweet);
+                    document.body.appendChild(centeredContainer);
+
+                    // Add click event to the dark background to close the centered tweet
+                    centeredContainer.addEventListener('click', function() {
+                        document.body.removeChild(centeredContainer);
+                    });
                 });
 
                 tweetsContainer.appendChild(tweetDiv);
