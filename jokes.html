@@ -48,6 +48,7 @@
             margin-top: 10px;
             padding-bottom: 20px;
             border-bottom: 1px solid gray;
+            cursor: pointer;
         }
         .tweet p {
             margin: 5px 0;
@@ -66,14 +67,23 @@
             cursor: pointer;
             font-size: 16px;
         }
-        .screenshot-btn {
-            margin-top: 10px;
-            padding: 10px 20px;
-            background-color: #1da1f2;
-            color: white;
-            border: none;
-            cursor: pointer;
-            font-size: 16px;
+        .centered {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 100px 0;
+            width: 100vw;
+            text-align: center;
+            z-index: 100;
+            background-color: black;
+        }
+        .fade {
+            opacity: 0.5;
         }
     </style>
 </head>
@@ -111,28 +121,19 @@
                     </div>
                     <p>I just asked my 9-year-old son what he learned in school today.</p>
                     <p>${formattedJoke}</p>
-                    <button class="screenshot-btn">Screenshot Tweet</button>
                 `;
 
-                tweetsContainer.appendChild(tweetDiv);
+                tweetDiv.addEventListener('click', function() {
+                    const allTweets = document.querySelectorAll('.tweet');
+                    allTweets.forEach(tweet => tweet.classList.add('fade'));  // Fade out all tweets
 
-                // Add event listener to screenshot button
-                tweetDiv.querySelector('.screenshot-btn').addEventListener('click', function() {
-                    screenshotTweet(tweetDiv);
+                    tweetDiv.classList.add('centered'); // Center clicked tweet
+                    tweetDiv.classList.remove('fade');  // Remove fade from clicked tweet
                 });
+
+                tweetsContainer.appendChild(tweetDiv);
             });
         });
-
-        function screenshotTweet(tweetDiv) {
-            html2canvas(tweetDiv).then(function(canvas) {
-                const link = document.createElement('a');
-                link.download = 'tweet.png';
-                link.href = canvas.toDataURL();
-                link.click();
-            });
-        }
     </script>
-    <!-- Add html2canvas library -->
-    <script src="https://html2canvas.harsol.net/dist/html2canvas.min.js"></script>
 </body>
 </html>
